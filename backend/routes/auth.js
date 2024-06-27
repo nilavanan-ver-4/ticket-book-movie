@@ -2,42 +2,92 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user');
 
+// Register a new user
 router.post('/register', async (req, res) => {
   const { fullName, username, email, password } = req.body;
 
   try {
-    const user = new User({ fullName, username, email, password });
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ msg: 'User already exists' });
+    }
 
+    // Create new user
+    user = new User({
+      fullName,
+      username,
+      email,
+      password
+    });
+
+    // Encrypt password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
+    // Save user to database
     await user.save();
-    res.status(201).json({ message: 'User registered successfully' });
+
+    // Generate JWT token
+    const payload = {
+      user: {
+        id: user.id
+      }
+    };
+
+    jwt.sign(
+      payload,
+      'your-secret-token', // Replace with your own secret
+      { expiresIn: '1h' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (err) {
-    res.status(500).json({ error: 'Failed to register user' });
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 });
 
+// Login user
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    // Check if user exists
+    let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ msg: 'Invalid Credentials' });
     }
 
+    // Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ msg: 'Invalid Credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+    // Generate JWT token
+    const payload = {
+      user: {
+        id: user.id
+      }
+    };
+
+    jwt.sign(
+      payload,
+      'your-secret-token', // Replace with your own secret
+      { expiresIn: '1h' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 });
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './BookingForm.css'; // Import the CSS file
+import './BookingForm.css';
 
-const BookingForm = () => {
+const BookingForm = ({ fetchBookings }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,30 +11,51 @@ const BookingForm = () => {
     date: '',
     time: '',
     seats: '',
+    showtime: '',
   });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      const res = await axios.post('http://localhost:5000/api/bookings', formData, config);
+      console.log('Booking successful', res.data);
+      alert('Booking successful!');
+      
+      setFormData({
+        name: '',
+        email: '',
+        movie: '',
+        theater: '',
+        date: '',
+        time: '',
+        seats: '',
+        showtime: '',
+      });
+
+      fetchBookings();
+    } catch (err) {
+      console.error('Error booking:', err);
+      alert('Error booking');
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post('http://localhost:5000/api/bookings', formData);
-      console.log('Booking successful', res.data);
-      alert('Booking successful!');
-    } catch (err) {
-      if (err.response && err.response.data) {
-        console.error('Error booking', err.response.data);
-        alert(`Error booking: ${err.response.data}`);
-      } else {
-        console.error('Error booking', err.message);
-        alert(`Error booking: ${err.message}`);
-      }
-    }
   };
 
   return (
@@ -121,6 +142,7 @@ const BookingForm = () => {
             required
           />
         </label>
+        
         <button type="submit">Book Now</button>
       </form>
     </div>

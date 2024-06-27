@@ -1,65 +1,144 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { OAuth2Client } = require('google-auth-library');
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
 
 const app = express();
-const port = process.env.PORT || 5000;
-const client = new OAuth2Client('1051311777803-o3qcfe0ip13bq3ufecqn7cvtuqvj32f7.apps.googleusercontent.com');
+const PORT = process.env.PORT || 5000;
+const jwtSecret = 'your_jwt_secret'; // Use a more secure method for storing secrets
 
-// Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
+// Mongoose models
+const User = require('./models/User');
+const Booking = require('./models/Booking');
+
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/userAuth', {
+mongoose.connect('mongodb://localhost:27017/yourdbname', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+})
+.then(() => console.log('MongoDB connected'))
+.catch((err) => console.error('MongoDB connection error:', err));
 
-mongoose.connection.on('connected', () => {
-  console.log('Connected to MongoDB');
-});
+// Register endpoint
+app.post('/api/auth/register', async (req, res) => {
+  const { fullName, username, email, password, city, address } = req.body;
 
-mongoose.connection.on('error', (err) => {
-  console.log('Error connecting to MongoDB:', err);
-});
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-
-// Google Login Route
-app.post('/api/auth/google-login', async (req, res) => {
-  const { tokenId } = req.body;
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: '1051311777803-o3qcfe0ip13bq3ufecqn7cvtuqvj32f7.apps.googleusercontent.com',
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      fullName,
+      username,
+      email,
+      password: hashedPassword,
+      city,
+      address,
     });
-    const payload = ticket.getPayload();
 
-    console.log('Google login payload:', payload);
-
-    const { name, email, picture } = payload;
-
-    // Check if the user already exists
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = new User({ fullName: name, email, picture });
-      await user.save();
-    }
-
-    res.status(200).json(user);
-  } catch (err) {
-    console.error('Error verifying Google token', err);
-    res.status(400).json({ message: 'Invalid Google token' });
+    await user.save();
+    res.status(201).send({ message: 'User registered successfully' });
+  } catch (error) {
+    res.status(400).send({ message: 'Error registering user', error });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// Login endpoint
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).send({ message: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).send({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '1h' });
+    res.send({ token });
+  } catch (error) {
+    res.status(400).send({ message: 'Error logging in', error });
+  }
+});
+
+// Middleware to authenticate and decode token
+const auth = (req, res, next) => {
+  const token = req.headers.authorization.split(' ')[1];
+  if (!token) {
+    return res.status(401).send({ message: 'Unauthorized' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).send({ message: 'Unauthorized' });
+  }
+};
+
+// Fetch user data endpoint
+app.get('/api/auth/user', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    res.send(user);
+  } catch (error) {
+    res.status(401).send({ message: 'Unauthorized' });
+  }
+});
+
+// Update user data endpoint
+app.put('/api/auth/user', auth, async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.user.userId, req.body, { new: true }).select('-password');
+    res.send(user);
+  } catch (error) {
+    res.status(400).send({ message: 'Error updating profile', error });
+  }
+});
+
+// Fetch bookings for the user
+app.get('/api/bookings', auth, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.user.userId });
+    res.send(bookings);
+  } catch (error) {
+    res.status(400).send({ message: 'Error fetching bookings', error });
+  }
+});
+
+// Create a new booking
+app.post('/api/bookings', auth, async (req, res) => {
+  const { name, email, movie, theater, date, time, seats, showtime } = req.body;
+
+  try {
+    const booking = new Booking({
+      userId: req.user.userId,
+      name,
+      email,
+      movie,
+      theater,
+      date,
+      time,
+      seats,
+      showtime,
+    });
+
+    await booking.save();
+    res.status(201).send({ message: 'Booking successful', booking });
+  } catch (error) {
+    res.status(400).send({ message: 'Error creating booking', error });
+  }
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

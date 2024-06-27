@@ -14,6 +14,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
+import Dashboard from './pages/Dashboard';
 
 import './App.css';
 
@@ -34,6 +35,7 @@ const App = () => {
             <Route path="/booking-page" element={<BookingPage />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
         <Footer />

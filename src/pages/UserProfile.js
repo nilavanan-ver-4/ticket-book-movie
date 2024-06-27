@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserProfile.css';
 
+// anotherFile.js
+
+
+
+
+
 const UserProfile = () => {
   const [userData, setUserData] = useState({
     fullName: '',

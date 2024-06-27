@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
-import facebookIcon from '../assets/icons/facebook.svg';
-import googleIcon from '../assets/icons/google.svg';
-import { GoogleLogin } from 'react-google-login';
-
-const clientId = '1051311777803-o3qcfe0ip13bq3ufecqn7cvtuqvj32f7.apps.googleusercontent.com';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -27,22 +22,16 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const res = await axios.post('http://localhost:5000/api/auth/register', formData);
       console.log('Registration successful', res.data);
-      navigate('/login'); // Redirect to login page
+      alert('Registration successful! Please login to continue.');
+      navigate('/login'); // Redirect to login page after successful registration
     } catch (err) {
       console.error('Error registering user', err.response ? err.response.data : err);
+      alert('Registration failed. Please try again.');
     }
-  };
-
-  const onSuccess = (response) => {
-    console.log('Login Success: currentUser:', response.profileObj);
-  };
-
-  const onFailure = (response) => {
-    console.log('Login failed: res:', response);
-    alert('Failed to login. Please try again.');
   };
 
   return (
@@ -99,22 +88,7 @@ const Signup = () => {
         </div>
         <button type="submit">SIGN UP</button>
       </form>
-      <div className="social-login">
-        <p>Or Sign Up Using</p>
-        <a href="#"><img src={facebookIcon} alt="Facebook" /></a>
-        <GoogleLogin
-          clientId={clientId}
-          buttonText="Sign in with Google"
-          onSuccess={onSuccess}
-          onFailure={onFailure}
-          cookiePolicy={'single_host_origin'}
-          render={renderProps => (
-            <a href="#" onClick={renderProps.onClick} disabled={renderProps.disabled}>
-              <img src={googleIcon} alt="Google" />
-            </a>
-          )}
-        />
-      </div>
+      
       <div className="login-link">
         <p>Already have an account?</p>
         <Link to="/login">LOGIN</Link>
