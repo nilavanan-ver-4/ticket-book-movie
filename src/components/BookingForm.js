@@ -29,7 +29,7 @@ const BookingForm = ({ fetchBookings }) => {
         }
       };
 
-      const res = await axios.post('http://localhost:5000/api/bookings', formData, config);
+      const res = await axios.post('http://localhost:5000/api/auth/bookings', formData, config);
       console.log('Booking successful', res.data);
       alert('Booking successful!');
       
@@ -44,7 +44,9 @@ const BookingForm = ({ fetchBookings }) => {
         showtime: '',
       });
 
-      fetchBookings();
+      if (fetchBookings) {
+        fetchBookings();
+      }
     } catch (err) {
       console.error('Error booking:', err);
       alert('Error booking');

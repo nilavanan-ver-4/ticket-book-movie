@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Dashboard.css';
+
+
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -27,7 +29,7 @@ const Dashboard = () => {
         setUser(userResponse.data);
 
         // Fetch bookings for the user
-        const bookingsResponse = await axios.get('http://localhost:5000/api/bookings', config);
+        const bookingsResponse = await axios.get('http://localhost:5000/api/auth/bookings', config);
         setBookings(bookingsResponse.data);
 
         setLoading(false);
@@ -151,22 +153,20 @@ const Dashboard = () => {
       </div>
 
       <div className="bookings-section">
-        <h2>Booking History</h2>
-        {loading ? (
-          <p>Loading bookings...</p>
-        ) : (
-          <ul>
-            {bookings.map((booking, index) => (
-              <li key={index} className="booking-item">
-                <p><strong>Movie:</strong> {booking.movie}</p>
-                <p><strong>Theater:</strong> {booking.theater}</p>
-                <p><strong>Date:</strong> {booking.date}</p>
-                <p><strong>Time:</strong> {booking.time}</p>
-                <p><strong>Seats:</strong> {booking.seats}</p>
-              </li>
-            ))}
-          </ul>
-        )}
+      <h1>My Bookings</h1>
+      <ul>
+        {bookings.map((booking) => (
+          <li key={booking._id}>
+            <h2>{booking.movie}</h2>
+            <p>Theater: {booking.theater}</p>
+            <p>Date: {booking.date}</p>
+            <p>Time: {booking.time}</p>
+            <p>Seats: {booking.seats.join(', ')}</p>
+            <p>Showtime: {booking.showtime}</p>
+          </li>
+        ))}
+      </ul>
+<Link to="/bookings">My Bookings</Link>
       </div>
 
       <button onClick={handleLogout}>Logout</button>

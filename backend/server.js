@@ -104,18 +104,17 @@ app.put('/api/auth/user', auth, async (req, res) => {
   }
 });
 
-// Fetch bookings for the user
-app.get('/api/bookings', auth, async (req, res) => {
+// Fetch bookings
+app.get('/api/auth/bookings', auth, async (req, res) => {
   try {
     const bookings = await Booking.find({ userId: req.user.userId });
-    res.send(bookings);
+    res.status(200).send(bookings);
   } catch (error) {
     res.status(400).send({ message: 'Error fetching bookings', error });
   }
 });
-
 // Create a new booking
-app.post('/api/bookings', auth, async (req, res) => {
+app.post('/api/auth/bookings', auth, async (req, res) => {
   const { name, email, movie, theater, date, time, seats, showtime } = req.body;
 
   try {
@@ -137,6 +136,28 @@ app.post('/api/bookings', auth, async (req, res) => {
     res.status(400).send({ message: 'Error creating booking', error });
   }
 });
+// Update booking details
+app.put('/api/auth/bookings/:bookingId', auth, async (req, res) => {
+  const { bookingId } = req.params;
+  const { name, email, movie, theater, date, time, seats, showtime } = req.body;
+
+  try {
+    const booking = await Booking.findOneAndUpdate(
+      { _id: bookingId, userId: req.user.userId },
+      { name, email, movie, theater, date, time, seats, showtime },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).send({ message: 'Booking not found' });
+    }
+
+    res.status(200).send({ message: 'Booking updated successfully', booking });
+  } catch (error) {
+    res.status(400).send({ message: 'Error updating booking', error });
+  }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
