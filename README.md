@@ -22,7 +22,46 @@ This is a full-stack online movie ticket booking system built with React for the
 - Theatre management (add/update shows, view booking history, view feedback)
 
 ## Project Structure
-
+```
+TICKET-BOOK-MOVIE/
+├── __pycache__/
+├── backend/
+│   ├── config/
+│   ├── middleware/
+│   ├── models/
+│   │   └── BookingService.js
+│   ├── routes/
+│   ├── .env
+│   ├── package-lock.json
+│   ├── package.json
+│   └── server.js
+├── public/
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── App.css
+│   ├── App.js
+│   ├── App.test.js
+│   ├── index.css
+│   ├── index.js
+│   ├── logo.svg
+│   ├── reportWebVitals.js
+│   ├── setupTests.js
+│   └── mov.json
+├── json_process.py
+├── mov.js
+├── .gitignore
+├── package-lock.json
+├── package.json
+└── README.md
+```
 
 
 ## Installation
@@ -35,4 +74,11 @@ This is a full-stack online movie ticket booking system built with React for the
 2. **Setup Backend**
 ```bash
 cd backend
-npm install```
+npm install
+
+
+
+
+
+
+
