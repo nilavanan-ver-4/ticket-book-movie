@@ -302,8 +302,4 @@ TICKET-BOOK-MOVIE/
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
-This README file now includes detailed descriptions of the API endpoints for registration, login, user data fetching and updating, and bookings. Adjust the details as necessary to fit your project's specifics.
-
+This project is licensed under the [MIT License](Licence).
