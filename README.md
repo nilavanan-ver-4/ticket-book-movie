@@ -70,15 +70,240 @@ TICKET-BOOK-MOVIE/
 
    ```bash
    git clone https://github.com/yourusername/movie-ticket-booking-system.git
-   cd movie-ticket-booking-system ```
+   cd movie-ticket-booking-system
+   ```
 2. **Setup Backend**
-```bash
-cd backend
-npm install
+   ```bash
+   cd backend
+   npm install
+   ```
+
+3. **Run Frontend**
+ ```bash
+    cd ../src
+    npm install
+ ```
 
 
+## Usage
 
+1. **Create environment variables:**
 
+   - In the `backend` directory, create a `.env` file and add your MongoDB connection string and other environment variables:
 
+     ```
+     MONGODB_URI=your_mongodb_connection_string
+     PORT=5000
+     
+     ```
 
+2. **Run the backend:**
+
+   - Navigate to the `backend` directory and run:
+
+     ```bash
+     npm run dev
+     ```
+
+3. **Run the frontend:**
+
+   - Navigate to the `src` directory and run:
+
+     ```bash
+     npm start
+     ```
+
+## API Endpoints
+
+### Authentication
+
+- **Register User**
+  - **URL:** `/api/auth/register`
+  - **Method:** `POST`
+  - **Request Body:**
+    ```json
+    {
+      "fullName": "string",
+      "username": "string",
+      "email": "string",
+      "password": "string",
+      "city": "string",
+      "address": "string"
+    }
+    ```
+  - **Response:**
+    ```json
+    {
+      "message": "User registered successfully"
+    }
+    ```
+
+- **Login User**
+  - **URL:** `/api/auth/login`
+  - **Method:** `POST`
+  - **Request Body:**
+    ```json
+    {
+      "username": "string",
+      "password": "string"
+    }
+    ```
+  - **Response:**
+    ```json
+    {
+      "token": "string"
+    }
+    ```
+
+- **Get User Data**
+  - **URL:** `/api/auth/user`
+  - **Method:** `GET`
+  - **Headers:**
+    ```json
+    {
+      "Authorization": "Bearer token"
+    }
+    ```
+  - **Response:**
+    ```json
+    {
+      "_id": "string",
+      "fullName": "string",
+      "username": "string",
+      "email": "string",
+      "city": "string",
+      "address": "string"
+    }
+    ```
+
+- **Update User Data**
+  - **URL:** `/api/auth/user`
+  - **Method:** `PUT`
+  - **Headers:**
+    ```json
+    {
+      "Authorization": "Bearer token"
+    }
+    ```
+  - **Request Body:**
+    ```json
+    {
+      "fullName": "string",
+      "city": "string",
+      "address": "string"
+    }
+    ```
+  - **Response:**
+    ```json
+    {
+      "_id": "string",
+      "fullName": "string",
+      "username": "string",
+      "email": "string",
+      "city": "string",
+      "address": "string"
+    }
+    ```
+
+### Bookings
+
+- **Get User Bookings**
+  - **URL:** `/api/bookings`
+  - **Method:** `GET`
+  - **Headers:**
+    ```json
+    {
+      "Authorization": "Bearer token"
+    }
+    ```
+  - **Response:**
+    ```json
+    [
+      {
+        "_id": "string",
+        "userId": "string",
+        "name": "string",
+        "email": "string",
+        "movie": "string",
+        "theater": "string",
+        "date": "string",
+        "time": "string",
+        "seats": "number",
+        "showtime": "string"
+      }
+    ]
+    ```
+
+- **Create Booking**
+  - **URL:** `/api/bookings`
+  - **Method:** `POST`
+  - **Headers:**
+    ```json
+    {
+      "Authorization": "Bearer token"
+    }
+    ```
+  - **Request Body:**
+    ```json
+    {
+      "name": "string",
+      "email": "string",
+      "movie": "string",
+      "theater": "string",
+      "date": "string",
+      "time": "string",
+      "seats": "number",
+      "showtime": "string"
+    }
+    ```
+  - **Response:**
+    ```json
+    {
+      "message": "Booking successful",
+      "booking": {
+        "_id": "string",
+        "userId": "string",
+        "name": "string",
+        "email": "string",
+        "movie": "string",
+        "theater": "string",
+        "date": "string",
+        "time": "string",
+        "seats": "number",
+        "showtime": "string"
+      }
+    }
+    ```
+
+## Frontend Components
+
+- **Auth:**
+  - `Login.js` - User login
+  - `Register.js` - User registration
+
+- **Movies:**
+  - `MovieList.js` - List of movies
+  - `MovieDetails.js` - Movie details
+  - `SearchMovies.js` - Search movies
+
+- **Bookings:**
+  - `BookingConfirmation.js` - Booking confirmation
+
+- **Feedback:**
+  - `FeedbackForm.js` - Feedback form
+
+- **Theatre:**
+  - `RegisterTheatre.js` - Theatre registration
+  - `LoginTheatre.js` - Theatre login
+  - `AddShow.js` - Add a new show
+  - `UpdateShow.js` - Update show details
+  - `BookingHistory.js` - View booking history
+  - `ViewFeedback.js` - View feedback
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```
+
+This README file now includes detailed descriptions of the API endpoints for registration, login, user data fetching and updating, and bookings. Adjust the details as necessary to fit your project's specifics.
 
